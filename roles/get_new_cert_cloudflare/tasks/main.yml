@@ -1,0 +1,40 @@
+---
+- name: delete old certificates
+  file:
+    path: files/letsencrypt/{{ item.key }}
+    state: absent
+  with_dict: "{{ list_domains }}"
+
+
+- name: create folders
+  file: 
+    path: files/letsencrypt/{{ item.key }}
+    state: directory
+  with_dict: "{{ list_domains }}"
+
+- name: copy template cd
+  template:
+    src: cloudflare.ini.j2
+    dest: files/letsencrypt/{{ item.key }}/cloudflare.ini
+  with_dict: "{{ list_domains }}"
+
+- name: obtain cert
+  ignore_errors: yes
+  command: certbot  certonly --non-interactive  -d *.{{ item.key }} -d {{ item.key }} \
+        --config-dir files/letsencrypt/{{ item.key  }} \
+        --work-dir files/letsencrypt/{{ item.key  }} \
+        --logs-dir files/letsencrypt/{{ item.key }} \
+        --agree-tos -m {{ item.value.email }} --dns-cloudflare \
+        --dns-cloudflare-credentials files/letsencrypt/{{ item.key }}/cloudflare.ini \
+        --dns-cloudflare-propagation-seconds 20
+  with_dict: "{{ list_domains }}"
+
+- name: delete  cloudflare.ini files
+  file:
+    path: files/letsencrypt/{{ item.key }}/cloudflare.ini
+    state: absent
+  with_dict: "{{ list_domains }}"
+
+  
+
+

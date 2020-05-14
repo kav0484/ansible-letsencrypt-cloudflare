@@ -1,0 +1,8 @@
+---
+- name: get cert
+  hosts: localhost
+  become: no
+  vars_files:
+    - ./secret_files/dns_tokens.yml
+  roles:
+    - role: get_new_cert_cloudflare

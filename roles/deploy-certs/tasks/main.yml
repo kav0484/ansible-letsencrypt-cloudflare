@@ -1,0 +1,7 @@
+- name: deploy sertificates
+  copy:
+    src: files/letsencrypt/{{ item }}/live/{{ item }}
+    dest: /etc/certs
+    owner: root
+    mode: 0600
+  with_items: "{{ list_domains }}"
